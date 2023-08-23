@@ -3,7 +3,7 @@ const path = require("path");
 const rootDir = require("../util/path");
 
 const Product = require('../models/product');
-
+const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
     switch (process.env.views) {
@@ -48,6 +48,22 @@ exports.getProducts = (req, res, next) => {
     }
 };
 
+exports.getProduct = (req, res, next) => {
+    const productId = req.params.productId;
+    Product.findById(productId, product => {
+        res.render("shop/product-detail", { product: product, pageTitle: product.title, path: '/products' });
+    });
+};
+
+exports.postCart = (req, res, next) => {
+    const prodId = req.body.productId;
+    Product.findById(prodId, product => {
+        Cart.addProduct(product.id, product.price);
+    });
+    console.log(prodId);
+    res.redirect('/cart')
+}
+
 exports.getIndex = (req, res, next) => {
 
     // console.log("getIndex: ", process.env.views);
@@ -79,17 +95,38 @@ exports.getIndex = (req, res, next) => {
             });
             break;
     }
-    
+
 };
 
 exports.getCart = (req, res, next) => {
     // console.log("getCart: ", process.env.views);
-
-    res.render("shop/cart", {
-        pageTitle: "My Cart",
-        path: "/cart",
+    Cart.fetchAll(cart => {
+        Product.fetchAll(products => {
+            const cartProducts = [];
+            for (let product of products) {
+                const cartProductData = cart.products.find(prod => prod.id === product.id);
+                if (cartProductData) {
+                    cartProducts.push({ productData: product, qty: cartProductData.qty });
+                }
+            }
+            res.render("shop/cart", {
+                pageTitle: "My Cart",
+                path: "/cart",
+                products: cartProducts
+            });
+        });
     });
 };
+
+exports.postCartDeleteProduct = (req, res, next) => {
+    const productId = req.body.productId;
+    // const productPrice = req.body.productPrice;  
+    // console.log(productId, productPrice);
+    Product.findById(productId, product => {
+        Cart.deleteProduct(productId, product.price);
+        res.redirect('/cart');
+    });
+}
 
 exports.getOrders = (req, res, next) => {
     // console.log("getOrders: ", process.env.views);
