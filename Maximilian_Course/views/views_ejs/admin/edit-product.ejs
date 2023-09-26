@@ -31,11 +31,16 @@
                                 <% } %></textarea>
                     </div>
                     <% if(editing) {%>
-                        <input type="hidden" value="<%= product.id %>" name="productId" />
-                        <% } %>
-                            <button class="btn" type="submit">
-                                <% if(editing) {%>Update Product<%} else {%>Add Product<% } %>
-                            </button>
+
+                        <% switch(views) { case 'ejs' : %>
+                            <input type="hidden" value="<%= product.id %>" name="productId" />
+                            <% break; case 'ejsWithDb' :%>
+                                <input type="hidden" value="<%= product._id %>" name="productId" />
+                                <% break; }%>
+                                    <% } %>
+                                        <button class="btn" type="submit">
+                                            <% if(editing) {%>Update Product<%} else {%>Add Product<% } %>
+                                        </button>
                 </form>
             </main>
             <%- include('../includes/end.ejs') %>

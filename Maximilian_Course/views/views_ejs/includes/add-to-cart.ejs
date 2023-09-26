@@ -1,4 +1,9 @@
 <form action="/cart" method="POST">
-    <button class="btn" type="submit">Add to Cart</button>
-    <input type="hidden" name="productId" value="<%= product.id %>" />
+    <% switch(views) { case 'ejs' : %>
+        <button class="btn" type="submit">Add to Cart</button>
+        <input type="hidden" name="productId" value="<%= product.id %>" />
+        <% break; case 'ejsWithDb' :%>
+            <button class="btn" type="submit">Add to Cart</button>
+            <input type="hidden" name="productId" value="<%= product._id %>" />
+            <% break; }%>
 </form>

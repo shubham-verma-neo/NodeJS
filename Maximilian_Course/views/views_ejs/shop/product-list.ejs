@@ -25,8 +25,13 @@
                                     </p>
                                 </div>
                                 <div class="card__actions">
-                                    <a href="/product/<%= product.id %>" class="btn">Details</a>
-                                    <%- include('../includes/add-to-cart.ejs', {product: product}) %>
+                                    <% switch(views) { case 'ejs' : %>
+                                        <a href="/product/<%= product.id %>" class="btn">Details</a>
+                                        <% break; case 'ejsWithDb' :%>
+                                            <a href="/product/<%= product._id %>" class="btn">Details</a>
+                                            <% break; }%>
+                                                <%- include('../includes/add-to-cart.ejs', {product: product}) %>
+
                                 </div>
                             </article>
                             <% } %>

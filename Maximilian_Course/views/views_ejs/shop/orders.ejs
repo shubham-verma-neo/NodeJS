@@ -1,9 +1,35 @@
 <%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/orders.css">
     </head>
 
     <body>
         <%- include('../includes/navigation.ejs') %>
-        <main>
-            <h1>Nothing..</h1>
-        </main>
-            <%- include('../includes/end.ejs') %>
+            <% switch(views) { case 'ejs' : %>
+                <main>
+                    <h1>Nothing..</h1>
+                </main>
+                <% break; case 'ejsWithDb' :%>
+                    <main>
+                        <% if (orders.length <=0) { %>
+                            <h1>Nothing there!</h1>
+                            <% } else { %>
+                                <ul class="orders">
+                                    <% orders.forEach(order=> { %>
+                                        <li class="orders__item">
+                                            <h1>Order - # <%= order._id %>
+                                            </h1>
+                                            <ul class="orders__products">
+                                                <% order.items.forEach(product=> { %>
+                                                    <li class="orders__products-item">
+                                                        <%= product.title %> (<%= product.qty %>)
+                                                    </li>
+                                                    <% }); %>
+                                            </ul>
+                                        </li>
+                                        <% }); %>
+                                </ul>
+                                <% } %>
+                    </main>
+                    <% break; }%>
+
+                        <%- include('../includes/end.ejs') %>
