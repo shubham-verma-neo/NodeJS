@@ -34,7 +34,7 @@
 
                         <% switch(views) { case 'ejs' : %>
                             <input type="hidden" value="<%= product.id %>" name="productId" />
-                            <% break; case 'ejsWithDb' :%>
+                            <% break; case 'ejsWithDb' : case 'ejsWithDbMongoose' :%>
                                 <input type="hidden" value="<%= product._id %>" name="productId" />
                                 <% break; }%>
                                     <% } %>

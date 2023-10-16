@@ -27,7 +27,7 @@
                                 <div class="card__actions">
                                     <% switch(views) { case 'ejs' : %>
                                         <a href="/product/<%= product.id %>" class="btn">Details</a>
-                                        <% break; case 'ejsWithDb' :%>
+                                        <% break; case 'ejsWithDb' : case 'ejsWithDbMongoose' :%>
                                             <a href="/product/<%= product._id %>" class="btn">Details</a>
                                             <% break; }%>
                                                 <%- include('../includes/add-to-cart.ejs', {product: product}) %>

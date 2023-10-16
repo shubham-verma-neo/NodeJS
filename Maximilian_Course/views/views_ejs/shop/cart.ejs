@@ -36,6 +36,20 @@
                                             <!-- <input type="hidden" name="productPrice" value="<%= p.price %>" /> -->
                                         </form>
                                     </li>
+                                <% break; case 'ejsWithDbMongoose' :%>
+                                    <li class="cart__item">
+                                        <h1>
+                                            <%= p.productId.title %>
+                                        </h1>
+                                        <h2>
+                                            Quantity: <%= p.qty %>
+                                        </h2>
+                                        <form action="/cart-delete-item" method="POST">
+                                            <button type="submit" class='btn danger'>Delete</button>
+                                            <input type="hidden" name="productId" value="<%= p.productId._id %>" />
+                                            <!-- <input type="hidden" name="productPrice" value="<%= p.price %>" /> -->
+                                        </form>
+                                    </li>
                                     <% break; }%>
                                         <% }) %>
                     </ul>

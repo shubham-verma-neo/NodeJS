@@ -1,5 +1,4 @@
 switch (process.env.views) {
-    case "ejs":
     case "hbs":
         {
             const fs = require("fs");
@@ -127,98 +126,132 @@ switch (process.env.views) {
             };
         }
         break;
-    case "ejsWithDb": {
-        const mongodb = require('mongodb');
-        const getDb = require("../util/database").getDb;
+    case "ejs":
+    case "ejsWithDb":
+        {
+            const mongodb = require('mongodb');
+            const getDb = require("../util/database").getDb;
 
-        class Product {
-            constructor(obj) {
-                this._id = obj.id ? new mongodb.ObjectId(obj.id) : null;
-                this.title = obj.title;
-                this.imageurl = obj.imageurl;
-                this.price = obj.price;
-                this.description = obj.description;
-                this.userId = obj.userId;
-            }
-
-            save() {
-                const db = getDb();
-                let dbOp;
-                if (this._id) {
-                    dbOp = db.collection('products')
-                        .updateOne({ _id: this._id }, {
-                            $set: this
-                        });
-                } else {
-                    dbOp = db.collection("products")
-                        .insertOne(this);
+            class Product {
+                constructor(obj) {
+                    this._id = obj.id ? new mongodb.ObjectId(obj.id) : null;
+                    this.title = obj.title;
+                    this.imageurl = obj.imageurl;
+                    this.price = obj.price;
+                    this.description = obj.description;
+                    this.userId = obj.userId;
                 }
-                return dbOp.then(result => {
-                    console.log("ejsWithDb_save_result: ", result);
-                })
-                    .catch((err) => {
-                        console.log("ejsWithDb_save_err: ", err)
-                    });
-            }
 
-            static fetchAll() {
-                const db = getDb();
-                return db.collection('products')
-                    .find()
-                    .toArray()
-                    .then(products => {
-                        // console.log('ejsWithDb_fetchAll_products: ', products);
-                        return products;
+                save() {
+                    const db = getDb();
+                    let dbOp;
+                    if (this._id) {
+                        dbOp = db.collection('products')
+                            .updateOne({ _id: this._id }, {
+                                $set: this
+                            });
+                    } else {
+                        dbOp = db.collection("products")
+                            .insertOne(this);
+                    }
+                    return dbOp.then(result => {
+                        console.log("ejsWithDb_save_result: ", result);
                     })
-                    .catch(err => {
-                        console.log('ejsWithDb_fetchAll_err: ', err);
-                    })
-            }
+                        .catch((err) => {
+                            console.log("ejsWithDb_save_err: ", err)
+                        });
+                }
 
-            static findById(prodId) {
-                const db = getDb();
-                return db.collection('products')
-                    .find({ _id: new mongodb.ObjectId(prodId) })
-                    .next()
-                    .then(product => {
-                        // console.log('ejsWithDb_findById_product: ', product);
-                        return product;
-                    }).catch(err => {
-                        console.log('ejsWithDb_findById_err: ', err);
-                    })
-            }
+                static fetchAll() {
+                    const db = getDb();
+                    return db.collection('products')
+                        .find()
+                        .toArray()
+                        .then(products => {
+                            // console.log('ejsWithDb_fetchAll_products: ', products);
+                            return products;
+                        })
+                        .catch(err => {
+                            console.log('ejsWithDb_fetchAll_err: ', err);
+                        })
+                }
 
-            // static updateById(obj) {
-            //     const db = getDb();
-            //     db.collection('products')
-            //         .updateOne({ _id: obj.id }, {
-            //             $set: {
-            //                 title: obj.title,
-            //                 imageurl: obj.imageurl,
-            //                 price: obj.price,
-            //                 description: obj.description,
-            //             }
-            //         })
-            //         .then(product => {
-            //             // console.log(product);
-            //         })
-            //         .catch(err => {
-            //             console.log('ejsWithDb_updateProductById_err: ', err);
-            //         })
-            // }
+                static findById(prodId) {
+                    const db = getDb();
+                    return db.collection('products')
+                        .find({ _id: new mongodb.ObjectId(prodId) })
+                        .next()
+                        .then(product => {
+                            // console.log('ejsWithDb_findById_product: ', product);
+                            return product;
+                        }).catch(err => {
+                            console.log('ejsWithDb_findById_err: ', err);
+                        })
+                }
 
-            static deleteById(prodId) {
-                const db = getDb();
-                db.collection('products')
-                    .deleteOne({ _id: new mongodb.ObjectId(prodId) })
-                    .then(() => {
-                        console.log('Product Deleted.');
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    })
+                // static updateById(obj) {
+                //     const db = getDb();
+                //     db.collection('products')
+                //         .updateOne({ _id: obj.id }, {
+                //             $set: {
+                //                 title: obj.title,
+                //                 imageurl: obj.imageurl,
+                //                 price: obj.price,
+                //                 description: obj.description,
+                //             }
+                //         })
+                //         .then(product => {
+                //             // console.log(product);
+                //         })
+                //         .catch(err => {
+                //             console.log('ejsWithDb_updateProductById_err: ', err);
+                //         })
+                // }
+
+                static deleteById(prodId) {
+                    const db = getDb();
+                    db.collection('products')
+                        .deleteOne({ _id: new mongodb.ObjectId(prodId) })
+                        .then(() => {
+                            console.log('Product Deleted.');
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                }
             }
+            module.exports = Product;
         }
-        module.exports = Product;
-    }
+        break;
+    case "ejsWithDbMongoose":
+        {
+            const mongoose = require('mongoose');
+            const Schema = mongoose.Schema;
+
+            const productSchema = new Schema({
+                title: {
+                    type: String,
+                    required: true
+                },
+                price: {
+                    type: Number,
+                    required: true
+                },
+                description: {
+                    type: String,
+                    required: true
+                },
+                imageurl: {
+                    type: String,
+                    required: true
+                },
+                userId: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'users',
+                    required: true
+                }
+            });
+
+            module.exports = mongoose.model('products', productSchema);
+        }
 }
