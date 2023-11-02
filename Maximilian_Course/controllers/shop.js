@@ -7,7 +7,6 @@ const Cart = require('../models/cart');
 const User = require('../models/user');
 const Order = require('../models/order');
 
-const { log } = require("console");
 
 exports.getProducts = (req, res, next) => {
     console.log("getProducts_shop: ", process.env.views);
@@ -71,6 +70,7 @@ exports.getProducts = (req, res, next) => {
                         pageTitle: "Shop",
                         path: "/products",
                         views: process.env.views,
+                        isAuthenticated: req.session.isLoggedIn,
                         hasProducts: products.length > 0 ? true : false,
                     });
                 }).catch(err => {
@@ -90,6 +90,7 @@ exports.getProduct = (req, res, next) => {
                 product: product,
                 pageTitle: product.title,
                 views: process.env.views,
+                isAuthenticated: req.session.isLoggedIn,
                 path: '/products'
             });
         }).catch(err => {
@@ -115,7 +116,7 @@ exports.postCart = (req, res, next) => {
             Product.findById(prodId)
                 .then(product => {
                     // console.log('req.user: ', req.user);
-                    req.user.addToCart(product);
+                   req.user.addToCart(product);
                     res.redirect('/cart')
                 })
                 .catch(err => {
@@ -180,6 +181,7 @@ exports.getIndex = (req, res, next) => {
                         pageTitle: "Shop",
                         path: "/",
                         views: process.env.views,
+                        isAuthenticated: req.session.isLoggedIn,
                         hasProducts: products.length > 0 ? true : false,
                     });
                 }).catch(err => {
@@ -253,8 +255,7 @@ exports.getCart = (req, res, next) => {
         }
             break;
         case 'ejsWithDbMongoose':
-
-            req.user
+            User.findById(req.user._id)
                 .populate('cart.items.productId')
                 .then(user => {
                     const products = user.cart.items;
@@ -262,6 +263,7 @@ exports.getCart = (req, res, next) => {
                         pageTitle: "My Cart",
                         path: "/cart",
                         views: process.env.views,
+                        isAuthenticated: req.session.isLoggedIn,
                         products: products
                     });
                 })
@@ -286,7 +288,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
             break;
         case 'ejsWithDb':
         case 'ejsWithDbMongoose':
-            req.user.deleteItemFromCart(productId)
+            User.findById(req.user._id).deleteItemFromCart(productId)
                 .then(result => {
                     res.redirect('/cart');
                 })
@@ -311,12 +313,14 @@ exports.getOrders = (req, res, next) => {
                 });
             break;
         case 'ejsWithDbMongoose':
+            console.log(req.user);
             Order.find({ 'user.userId': req.user._id })
                 .then(orders => {
                     res.render("shop/orders", {
                         pageTitle: "My Orders",
                         views: process.env.views,
                         path: "/orders",
+                        isAuthenticated: req.session.isLoggedIn,
                         orders: orders
                     });
                 });
@@ -366,5 +370,6 @@ exports.getCheckout = (req, res, next) => {
     res.render("shop/checkout", {
         pageTitle: "Checkout",
         path: "/checkout",
+        isAuthenticated: req.session.isLoggedIn,
     });
 };

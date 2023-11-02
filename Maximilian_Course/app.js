@@ -4,6 +4,8 @@ require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const User = require('./models/user');
 
@@ -18,8 +20,13 @@ switch (process.env.views) {
         break;
 }
 
+const MONGODB_URI = `mongodb+srv://verma-shu6ham:${process.env.mongoPassword}@nodejs.xwd8o9y.mongodb.net/${`shop_` + process.env.views}?retryWrites=true&w=majority`;
 
 const app = express();
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'sessions'
+})
 
 switch (process.env.views) {
     case "pug":
@@ -42,10 +49,12 @@ switch (process.env.views) {
 
 const adminData = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const authRoutes = require("./routes/auth");
 const errorController = require("./controllers/error");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false, store: store }));
 
 switch (process.env.views) {
     case 'ejsWithDb':
@@ -64,7 +73,10 @@ switch (process.env.views) {
         break;
     case 'ejsWithDbMongoose':
         app.use((req, res, next) => {
-            User.findById("652d07e338dba78b8f57baed")
+            if (!req.session.user) {
+                return next();
+            }
+            User.findById(req.session.user._id)
                 .then(user => {
                     req.user = user;
                     next();
@@ -78,6 +90,7 @@ switch (process.env.views) {
 
 app.use("/admin", adminData.routes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
 
@@ -93,7 +106,7 @@ switch (process.env.views) {
         console.log(process.env.views);
         mongoose
             .connect(
-                `mongodb+srv://verma-shu6ham:${process.env.mongoPassword}@nodejs.xwd8o9y.mongodb.net/${`shop_` + process.env.views}?retryWrites=true&w=majority`
+                MONGODB_URI
             ).then(result => {
                 User.findOne().then(user => {
                     if (!user) {

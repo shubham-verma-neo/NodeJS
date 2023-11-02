@@ -37,7 +37,9 @@ exports.getAddProduct = (req, res, next) => {
             res.render("admin/edit-product", {
                 pageTitle: "Add Product",
                 path: "/admin/add-product",
-                editing: false
+                editing: false,
+                views: process.env.views,
+                isAuthenticated: req.session.isLoggedIn,
             }); // with handlebars as a view engine
             break;
     }
@@ -55,7 +57,7 @@ exports.postAddProduct = (req, res, next) => {
                 imageurl: req.body.imageurl,
                 price: req.body.price,
                 description: req.body.description.trim(),
-                userId: req.user._id
+                userId: req.session.user._id
             };
 
             product = new Product(obj);
@@ -69,7 +71,7 @@ exports.postAddProduct = (req, res, next) => {
                 imageurl: req.body.imageurl,
                 price: req.body.price,
                 description: req.body.description.trim(),
-                userId: req.user._id
+                userId: req.session.user._id
             };
 
             product = new Product(obj);
@@ -88,7 +90,7 @@ exports.postAddProduct = (req, res, next) => {
                 price: req.body.price,
                 description: req.body.description,
                 imageurl: req.body.imageurl,
-                userId: req.user
+                userId: req.session.user
             });
             product.save()
                 .then(result => {
@@ -114,7 +116,7 @@ exports.postEditProduct = (req, res, next) => {
                 imageurl: req.body.imageurl,
                 price: req.body.price,
                 description: req.body.description.trim(),
-                userId: req.user._id
+                userId: req.session.user._id
             };
 
             updatedProduct = new Product(obj);
@@ -128,7 +130,7 @@ exports.postEditProduct = (req, res, next) => {
                 imageurl: req.body.imageurl,
                 price: req.body.price,
                 description: req.body.description.trim(),
-                userId: req.user._id
+                userId: req.session.user._id
             };
 
             updatedProduct = new Product(obj);
@@ -224,6 +226,7 @@ exports.getEditProduct = (req, res, next) => {
                         path: "/admin/edit-product",
                         editing: editMode,
                         views: process.env.views,
+                        isAuthenticated: req.session.isLoggedIn,
                         product: product
                     }); // with handlebars as a view engine
                 })
@@ -278,6 +281,7 @@ exports.getProducts = (req, res, next) => {
                         path: "/admin/products",
                         views: process.env.views,
                         hasProducts: products.length > 0 ? true : false,
+                        isAuthenticated: req.session.isLoggedIn,
                     });
                 }).catch(err => {
                     console.log('ejsWithDb_err: ', err);

@@ -2,8 +2,12 @@
     <% switch(views) { case 'ejs' : %>
         <button class="btn" type="submit">Add to Cart</button>
         <input type="hidden" name="productId" value="<%= product.id %>" />
-        <% break; case 'ejsWithDb' : case 'ejsWithDbMongoose' :%>
+        <% break; case 'ejsWithDb' :%>
             <button class="btn" type="submit">Add to Cart</button>
             <input type="hidden" name="productId" value="<%= product._id %>" />
-            <% break; }%>
+            <% break; case 'ejsWithDbMongoose' :%>
+                <% if(isAuthenticated){ %>
+                    <button class="btn" type="submit">Add to Cart</button>
+                    <input type="hidden" name="productId" value="<%= product._id %>" />
+                    <% } break; }%>
 </form>
