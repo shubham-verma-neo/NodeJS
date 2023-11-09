@@ -34,13 +34,16 @@
 
                         <% switch(views) { case 'ejs' : %>
                             <input type="hidden" value="<%= product.id %>" name="productId" />
-                            <% break; case 'ejsWithDb' : case 'ejsWithDbMongoose' :%>
+                            <% break; case 'ejsWithDb' : %>
                                 <input type="hidden" value="<%= product._id %>" name="productId" />
-                                <% break; }%>
-                                    <% } %>
-                                        <button class="btn" type="submit">
-                                            <% if(editing) {%>Update Product<%} else {%>Add Product<% } %>
-                                        </button>
+                                <% break; case 'ejsWithDbMongoose' :%>
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <input type="hidden" value="<%= product._id %>" name="productId" />
+                                    <% break; }%>
+                                        <% } %>
+                                            <button class="btn" type="submit">
+                                                <% if(editing) {%>Update Product<%} else {%>Add Product<% } %>
+                                            </button>
                 </form>
             </main>
             <%- include('../includes/end.ejs') %>

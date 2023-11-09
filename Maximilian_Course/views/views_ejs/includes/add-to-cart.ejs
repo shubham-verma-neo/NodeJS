@@ -8,6 +8,7 @@
             <% break; case 'ejsWithDbMongoose' :%>
                 <% if(isAuthenticated){ %>
                     <button class="btn" type="submit">Add to Cart</button>
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <input type="hidden" name="productId" value="<%= product._id %>" />
                     <% } break; }%>
 </form>

@@ -140,11 +140,11 @@ switch (process.env.views) {
         const Schema = mongoose.Schema;
 
         const userSchema = new Schema({
-            name: {
+            email: {
                 type: String,
                 required: true
             },
-            email: {
+            password: {
                 type: String,
                 required: true
             },

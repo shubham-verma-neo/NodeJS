@@ -70,7 +70,7 @@ exports.getProducts = (req, res, next) => {
                         pageTitle: "Shop",
                         path: "/products",
                         views: process.env.views,
-                        isAuthenticated: req.session.isLoggedIn,
+                        //isAuthenticated: req.session.isLoggedIn,
                         hasProducts: products.length > 0 ? true : false,
                     });
                 }).catch(err => {
@@ -90,7 +90,7 @@ exports.getProduct = (req, res, next) => {
                 product: product,
                 pageTitle: product.title,
                 views: process.env.views,
-                isAuthenticated: req.session.isLoggedIn,
+                //isAuthenticated: req.session.isLoggedIn,
                 path: '/products'
             });
         }).catch(err => {
@@ -116,7 +116,7 @@ exports.postCart = (req, res, next) => {
             Product.findById(prodId)
                 .then(product => {
                     // console.log('req.user: ', req.user);
-                   req.user.addToCart(product);
+                    req.user.addToCart(product);
                     res.redirect('/cart')
                 })
                 .catch(err => {
@@ -181,8 +181,9 @@ exports.getIndex = (req, res, next) => {
                         pageTitle: "Shop",
                         path: "/",
                         views: process.env.views,
-                        isAuthenticated: req.session.isLoggedIn,
                         hasProducts: products.length > 0 ? true : false,
+                        //isAuthenticated: req.session.isLoggedIn,
+                        csrfToken: req.csrfToken()
                     });
                 }).catch(err => {
                     console.log(err);
@@ -263,7 +264,7 @@ exports.getCart = (req, res, next) => {
                         pageTitle: "My Cart",
                         path: "/cart",
                         views: process.env.views,
-                        isAuthenticated: req.session.isLoggedIn,
+                        //isAuthenticated: req.session.isLoggedIn,
                         products: products
                     });
                 })
@@ -288,9 +289,9 @@ exports.postCartDeleteProduct = (req, res, next) => {
             break;
         case 'ejsWithDb':
         case 'ejsWithDbMongoose':
-            User.findById(req.user._id).deleteItemFromCart(productId)
-                .then(result => {
-                    res.redirect('/cart');
+            User.findById(req.user._id)
+                .then(user => {
+                    user.deleteItemFromCart(productId).then(result => res.redirect('/cart'))
                 })
                 .catch(err => console.log(err));
             break;
@@ -320,7 +321,7 @@ exports.getOrders = (req, res, next) => {
                         pageTitle: "My Orders",
                         views: process.env.views,
                         path: "/orders",
-                        isAuthenticated: req.session.isLoggedIn,
+                        //isAuthenticated: req.session.isLoggedIn,
                         orders: orders
                     });
                 });
@@ -350,7 +351,7 @@ exports.postOrder = (req, res, next) => {
                     const order = new Order({
                         products: products,
                         user: {
-                            name: req.user.name,
+                            email: req.user.email,
                             userId: req.user._id
                         }
                     });
@@ -370,6 +371,6 @@ exports.getCheckout = (req, res, next) => {
     res.render("shop/checkout", {
         pageTitle: "Checkout",
         path: "/checkout",
-        isAuthenticated: req.session.isLoggedIn,
+        //isAuthenticated: req.session.isLoggedIn,
     });
 };

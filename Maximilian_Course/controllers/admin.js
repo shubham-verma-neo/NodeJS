@@ -39,7 +39,7 @@ exports.getAddProduct = (req, res, next) => {
                 path: "/admin/add-product",
                 editing: false,
                 views: process.env.views,
-                isAuthenticated: req.session.isLoggedIn,
+                //isAuthenticated: req.session.isLoggedIn,
             }); // with handlebars as a view engine
             break;
     }
@@ -226,7 +226,7 @@ exports.getEditProduct = (req, res, next) => {
                         path: "/admin/edit-product",
                         editing: editMode,
                         views: process.env.views,
-                        isAuthenticated: req.session.isLoggedIn,
+                        //isAuthenticated: req.session.isLoggedIn,
                         product: product
                     }); // with handlebars as a view engine
                 })
@@ -281,7 +281,7 @@ exports.getProducts = (req, res, next) => {
                         path: "/admin/products",
                         views: process.env.views,
                         hasProducts: products.length > 0 ? true : false,
-                        isAuthenticated: req.session.isLoggedIn,
+                        //isAuthenticated: req.session.isLoggedIn,
                     });
                 }).catch(err => {
                     console.log('ejsWithDb_err: ', err);
