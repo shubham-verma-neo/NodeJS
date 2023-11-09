@@ -1,6 +1,16 @@
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
+const mailgunTransport = require('nodemailer-mailgun-transport');
 
 const User = require("../models/user");
+
+const transporter = nodemailer.createTransport(mailgunTransport({
+    auth: {
+        api_key: process.env.mail_api_key,
+        domain: process.env.mail_domain,
+    }
+}));
 
 exports.getLogin = (req, res, next) => {
     console.log("getLogin_auth: ", process.env.views);
@@ -9,7 +19,7 @@ exports.getLogin = (req, res, next) => {
     // isLoggedIn = req.get('Cookie').trim().split('=')[1];
     // console.log(isLoggedIn);
     //console.log(req.session.isLoggedIn);
-    
+
     let message = req.flash('error');
     if (message.length > 0) {
         message = message[0];
@@ -109,6 +119,15 @@ exports.postSignup = (req, res, next) => {
                     })
                     .then(result => {
                         res.redirect('/login');
+                        return transporter.sendMail({
+                            to: email,
+                            from: 'shubham@nodeJS-Maximilian.com',
+                            subject: 'Signup succeeded!',
+                            html: '<h1>You successfully signed up!</h1>'
+                        })
+                    })
+                    .catch(err => {
+                        console.log(err);
                     });
             } else {
                 req.flash('error', `Password doesn't match.`)
