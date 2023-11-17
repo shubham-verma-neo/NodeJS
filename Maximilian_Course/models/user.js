@@ -148,6 +148,8 @@ switch (process.env.views) {
                 type: String,
                 required: true
             },
+            resetToken: String,
+            resetTokenExpiration: Date,
             cart: {
                 items: [{
                     productId: { type: Schema.Types.ObjectId, ref: 'products', required: true },

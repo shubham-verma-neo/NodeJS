@@ -151,17 +151,21 @@ exports.postEditProduct = (req, res, next) => {
             let updatedPrice = req.body.price;
             let updatedDescription = req.body.description.trim();
             let updatedImageurl = req.body.imageurl;
+            let userId = req.user._id;
 
             Product.findById(prodId).then(product => {
+                if (product.userId.toString() !== userId.toString()) {
+                    return res.redirect('/');
+                }
                 product.title = updatedTitle;
                 product.price = updatedPrice;
                 product.description = updatedDescription;
                 product.imageurl = updatedImageurl;
-                return product.save();
-            }).then(result => {
-                console.log('UPDATED PRODUCT!');
-                // Product.updateById(obj);
-                res.redirect("/admin/products");
+                return product.save().then(result => {
+                    console.log('UPDATED PRODUCT!');
+                    // Product.updateById(obj);
+                    res.redirect("/admin/products");
+                });
             })
                 .catch(err => {
                     console.log(err);
@@ -175,6 +179,8 @@ exports.postDeleteProduct = (req, res, next) => {
     console.log("postDeleteProduct_admin: ", process.env.views);
 
     const productId = req.body.productId;
+    const userId = req.user._id;
+
     switch (process.env.views) {
         case 'ejsWithDb':
             Product.deleteById(productId);
@@ -182,7 +188,7 @@ exports.postDeleteProduct = (req, res, next) => {
             res.redirect('/admin/products');
             break;
         case 'ejsWithDbMongoose':
-            Product.findByIdAndRemove(productId).then(() => {
+            Product.deleteOne({_id: productId, userId: userId}).then(() => {
                 console.log('DESTROYED PRODUCT');
                 res.redirect('/admin/products');
             });
@@ -198,6 +204,7 @@ exports.getEditProduct = (req, res, next) => {
         return res.redirect('/');
     }
     const prodId = req.params.productId;
+    
     switch (process.env.views) {
         case 'ejs':
             Product.findById(prodId, product => {
@@ -239,7 +246,7 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
     console.log("getProducts_admin: ", process.env.views);
-
+    const userId = req.user._id;
     switch (process.env.views) {
         case 'ejs':
             Product.fetchAll((products) => {
@@ -270,7 +277,7 @@ exports.getProducts = (req, res, next) => {
             break;
         case 'ejsWithDbMongoose':
             Product
-                .find()
+                .find({userId: userId})
                 // .select('title price imageurl -_id')
                 // .populate('userId', 'name')
                 .then((products) => {
