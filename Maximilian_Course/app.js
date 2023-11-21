@@ -112,7 +112,7 @@ switch (process.env.views) {
     case "ejsWithDb":
         console.log(process.env.views);
         mongoConnect(() => {
-            app.listen(3001);
+            app.listen(3000);
         });
         break;
     case "ejsWithDbMongoose":

@@ -3,6 +3,7 @@ const path = require("path");
 const rootDir = require("../util/path");
 
 const Product = require('../models/product');
+const { validationResult } = require("express-validator");
 
 exports.getAddProduct = (req, res, next) => {
     console.log("getAddProduct_admin: ", process.env.views);
@@ -34,13 +35,16 @@ exports.getAddProduct = (req, res, next) => {
             break;
         case 'ejsWithDb':
         case 'ejsWithDbMongoose':
+
             res.render("admin/edit-product", {
                 pageTitle: "Add Product",
                 path: "/admin/add-product",
                 editing: false,
                 views: process.env.views,
-                //isAuthenticated: req.session.isLoggedIn,
-            }); // with handlebars as a view engine
+                hasError: false,
+                errorMessage: null,
+                validationErrors: []
+            });
             break;
     }
 };
@@ -85,16 +89,39 @@ exports.postAddProduct = (req, res, next) => {
                 });
             break;
         case 'ejsWithDbMongoose':
+            const title = req.body.title;
+            const price = req.body.price;
+            const description = req.body.description;
+            const imageurl = req.body.imageurl;
+
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).render("admin/edit-product", {
+                    pageTitle: "Add Product",
+                    path: "/admin/edit-product",
+                    editing: false,
+                    views: process.env.views,
+                    hasError: true,
+                    product: {
+                        title: title,
+                        imageurl: imageurl,
+                        price: price,
+                        description: description
+                    },
+                    errorMessage: errors.array()[0].msg,
+                    validationErrors: errors.array()
+                });
+            }
             product = new Product({
-                title: req.body.title,
-                price: req.body.price,
-                description: req.body.description,
-                imageurl: req.body.imageurl,
+                title: title,
+                price: price,
+                description: description,
+                imageurl: imageurl,
                 userId: req.session.user
             });
             product.save()
                 .then(result => {
-                    // console.log("Product Created");
+                    console.log("Product Created");
                     res.redirect('/admin/products');
                 })
                 .catch(err => {
@@ -146,12 +173,35 @@ exports.postEditProduct = (req, res, next) => {
             break;
         case 'ejsWithDbMongoose':
 
+
             let prodId = req.body.productId;
             let updatedTitle = req.body.title;
             let updatedPrice = req.body.price;
             let updatedDescription = req.body.description.trim();
             let updatedImageurl = req.body.imageurl;
             let userId = req.user._id;
+
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(422).render('admin/edit-product', {
+                    pageTitle: 'Edit Product',
+                    path: '/admin/edit-product',
+                    views: process.env.views,
+                    editing: true,
+                    hasError: true,
+                    product: {
+                        title: updatedTitle,
+                        imageurl: updatedImageurl,
+                        price: updatedPrice,
+                        description: updatedDescription,
+                        _id: prodId
+                    },
+                    errorMessage: errors.array()[0].msg,
+                    validationErrors: errors.array()
+                });
+            }
 
             Product.findById(prodId).then(product => {
                 if (product.userId.toString() !== userId.toString()) {
@@ -188,7 +238,7 @@ exports.postDeleteProduct = (req, res, next) => {
             res.redirect('/admin/products');
             break;
         case 'ejsWithDbMongoose':
-            Product.deleteOne({_id: productId, userId: userId}).then(() => {
+            Product.deleteOne({ _id: productId, userId: userId }).then(() => {
                 console.log('DESTROYED PRODUCT');
                 res.redirect('/admin/products');
             });
@@ -204,7 +254,7 @@ exports.getEditProduct = (req, res, next) => {
         return res.redirect('/');
     }
     const prodId = req.params.productId;
-    
+
     switch (process.env.views) {
         case 'ejs':
             Product.findById(prodId, product => {
@@ -222,9 +272,9 @@ exports.getEditProduct = (req, res, next) => {
             break;
         case 'ejsWithDb':
         case 'ejsWithDbMongoose':
+
             Product.findById(prodId)
                 .then(product => {
-                    console.log(product);
                     if (!product) {
                         res.redirect('/');
                     }
@@ -233,8 +283,10 @@ exports.getEditProduct = (req, res, next) => {
                         path: "/admin/edit-product",
                         editing: editMode,
                         views: process.env.views,
-                        //isAuthenticated: req.session.isLoggedIn,
-                        product: product
+                        product:product,
+                        hasError: false,
+                        errorMessage: null,
+                        validationErrors: [],
                     }); // with handlebars as a view engine
                 })
                 .catch(err => {
@@ -276,12 +328,13 @@ exports.getProducts = (req, res, next) => {
                 });
             break;
         case 'ejsWithDbMongoose':
+
             Product
-                .find({userId: userId})
+                .find({ userId: userId })
                 // .select('title price imageurl -_id')
                 // .populate('userId', 'name')
                 .then((products) => {
-                    console.log('Product: ', products);
+                    // console.log('Product: ', products);
                     res.render("admin/products", {
                         prods: products,
                         pageTitle: "Admin Products",
